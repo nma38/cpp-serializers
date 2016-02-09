@@ -1,9 +1,9 @@
-#include "boost/record.hpp"
+#include "boost/media.hpp"
 
 namespace boost_test {
 
 void
-to_string(const Record &record, std::string &data)
+to_string(const MediaContent &record, std::string &data)
 {
     std::ostringstream stream;
     boost::archive::binary_oarchive archiver(stream);
@@ -13,7 +13,7 @@ to_string(const Record &record, std::string &data)
 }
 
 void
-from_string(Record &record, const std::string &data)
+from_string(MediaContent &record, const std::string &data)
 {
     std::stringstream stream(data);
     boost::archive::binary_iarchive archiver(stream);

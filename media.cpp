@@ -5,6 +5,7 @@
 #include <memory>
 #include <chrono>
 #include <sstream>
+#include <fstream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -13,22 +14,60 @@
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/protocol/TCompactProtocol.h>
 
-#include "thrift/gen-cpp/test_types.h"
-#include "thrift/gen-cpp/test_constants.h"
+/*#include "thrift/gen-cpp/media_types.h"
+#include "thrift/gen-cpp/media_constants.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#include "protobuf/test.pb.h"
-#include "capnproto/test.capnp.h"
-#include "boost/record.hpp"
-#include "msgpack/record.hpp"
-#include "cereal/record.hpp"
-#include "avro/record.hpp"
+#include "protobuf/media.pb.h"
+#include "capnproto/media.capnp.h"*/
+#include "boost/media.hpp"
 
-#include "data.hpp"
+/*MediaContent
+get_test_data(std::string testfile)
+{
+    MediaContent data;
 
-enum class ThriftSerializationProto {
+    std::ifstream ifs(testfile.c_str());
+    std::stringstream buffer;
+    buffer << ifs.rdbuf();
+
+    from_string(data, buffer.str()); 
+
+    return data;
+}*/
+
+void
+boost_serialization_test(size_t iterations)
+{
+    using namespace boost_test;
+    MediaContent r1, r2;
+
+    std::string serialized;
+    to_string(r1, serialized);
+    from_string(r2, serialized);
+
+    if (r1 != r2) {
+        throw std::logic_error("boost's case: deserialization failed");
+    }
+
+    std::cout << "boost: version = " << BOOST_VERSION << std::endl;
+    std::cout << "boost: size = " << serialized.size() << " bytes" << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        serialized.clear();
+        to_string(r1, serialized);
+        from_string(r2, serialized);
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+    std::cout << "boost: time = " << duration << " milliseconds" << std::endl << std::endl;
+}
+
+/*enum class ThriftSerializationProto {
     Binary,
     Compact
 };
@@ -146,7 +185,7 @@ protobuf_serialization_test(size_t iterations)
     // check if we can deserialize back
     Record r2;
     bool ok = r2.ParseFromString(serialized);
-    if (!ok /*|| r2 != r1*/) {
+    if (!ok) {
         throw std::logic_error("protobuf's case: deserialization failed");
     }
 
@@ -211,45 +250,6 @@ capnproto_serialization_test(size_t iterations)
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
 
     std::cout << "capnproto: time = " << duration << " milliseconds" << std::endl << std::endl;
-}
-
-void
-boost_serialization_test(size_t iterations)
-{
-    using namespace boost_test;
-
-    Record r1, r2;
-
-    for (size_t i = 0; i < kIntegers.size(); i++) {
-        r1.ids.push_back(kIntegers[i]);
-    }
-
-    for (size_t i = 0; i < kStringsCount; i++) {
-        r1.strings.push_back(kStringValue);
-    }
-
-    std::string serialized;
-
-    to_string(r1, serialized);
-    from_string(r2, serialized);
-
-    if (r1 != r2) {
-        throw std::logic_error("boost's case: deserialization failed");
-    }
-
-    std::cout << "boost: version = " << BOOST_VERSION << std::endl;
-    std::cout << "boost: size = " << serialized.size() << " bytes" << std::endl;
-
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < iterations; i++) {
-        serialized.clear();
-        to_string(r1, serialized);
-        from_string(r2, serialized);
-    }
-    auto finish = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
-
-    std::cout << "boost: time = " << duration << " milliseconds" << std::endl << std::endl;
 }
 
 void
@@ -321,9 +321,7 @@ cereal_serialization_test(size_t iterations)
 
     to_string(r1, serialized);
     from_string(r2, serialized);
-
-    if (r1 != r2) {
-        throw std::logic_error("cereal's case: deserialization failed");
+if (r1 != r2) { throw std::logic_error("cereal's case: deserialization failed");
     }
 
     std::cout << "cereal: size = " << serialized.size() << " bytes" << std::endl;
@@ -392,15 +390,15 @@ avro_serialization_test(size_t iterations)
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
 
     std::cout << "avro: time = " << duration << " milliseconds" << std::endl << std::endl;
-}
+}*/
 
 int
 main(int argc, char **argv)
 {
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    //GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     if (argc < 2) {
-        std::cout << "usage: " << argv[0] << " N [thrift-binary thrift-compact protobuf boost msgpack cereal avro]";
+        std::cout << "usage: " << argv[0] << " N [thrift-binary thrift-compact protobuf boost capnproto msgpack cereal avro]";
         std::cout << std::endl << std::endl;
         std::cout << "arguments: " << std::endl;
         std::cout << " N  -- number of iterations" << std::endl << std::endl;
@@ -425,12 +423,18 @@ main(int argc, char **argv)
         }
     }
 
+    std::string testfile = "media.2.json";
+
+    std::cout << "grabbing test data " << testfile << std::endl << std::endl;
     std::cout << "performing " << iterations << " iterations" << std::endl << std::endl;
 
-    /*std::cout << "total size: " << sizeof(kIntegerValue) * kIntegersCount + kStringValue.size() * kStringsCount << std::endl;*/
-
     try {
-        if (names.empty() || names.find("thrift-binary") != names.end()) {
+        // MediaContent testContent = get_test_data(testfile);
+        if (names.empty() || names.find("boost") != names.end()) {
+            boost_serialization_test(iterations);
+        }
+
+        /*if (names.empty() || names.find("thrift-binary") != names.end()) {
             thrift_serialization_test(iterations, ThriftSerializationProto::Binary);
         }
 
@@ -446,9 +450,6 @@ main(int argc, char **argv)
             capnproto_serialization_test(iterations);
         }
 
-        if (names.empty() || names.find("boost") != names.end()) {
-            boost_serialization_test(iterations);
-        }
 
         if (names.empty() || names.find("msgpack") != names.end()) {
             msgpack_serialization_test(iterations);
@@ -460,13 +461,13 @@ main(int argc, char **argv)
 
         if (names.empty() || names.find("avro") != names.end()) {
             avro_serialization_test(iterations);
-        }
+         }*/
     } catch (std::exception &exc) {
         std::cerr << "Error: " << exc.what() << std::endl;
         return EXIT_FAILURE;
     }
 
-    google::protobuf::ShutdownProtobufLibrary();
+    //google::protobuf::ShutdownProtobufLibrary();
 
     return EXIT_SUCCESS;
 }

@@ -60,13 +60,34 @@ set(BOOST_LIBRARIES ${boost_PREFIX}/lib/libboost_serialization.a)
 include_directories(${Boost_INCLUDE_DIRS}/include)
 message(STATUS "Using Boost from ${Boost_INCLUDE_DIRS}/include")
 
+set(rapidjson_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/rapidjson)
+ExternalProject_Add(
+    rapidjson 
+    PREFIX ${rapidjson_PREFIX}
+    URL "https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz"
+    URL_MD5 "97cc60d01282a968474c97f60714828c"
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${rapidjson_PREFIX}/src/rapidjson/configure --prefix=${rapidjson_PREFIX} --enable-shared=no
+    BUILD_COMMAND $(MAKE)
+    INSTALL_COMMAND $(MAKE) install
+    BUILD_IN_SOURCE 1
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+    LOG_INSTALL ON
+)
+set(radidjson_INCLUDE_DIRS ${rapidjson_PREFIX})
+set(RAPIDJSON_LIBRARIES ${rapidjson_PREFIX}/lib/)
+include_directories(${rapidjson_INCLUDE_DIRS}/include)
+message(STATUS "Using Boost from ${rapidjson_INCLUDE_DIRS}/include")
+
+
 set(thrift_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/thrift)
 ExternalProject_Add(
     thrift
     PREFIX ${thrift_PREFIX}
     DEPENDS boost
-    URL "http://www.eu.apache.org/dist/thrift/0.9.2/thrift-0.9.2.tar.gz"
-    URL_MD5 "89f63cc4d0100912f4a1f8a9dee63678"
+    URL "http://www.apache.org/dist/thrift/0.9.3/thrift-0.9.3.tar.gz"
+    URL_MD5 "88d667a8ae870d5adeca8cb7d6795442"
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${thrift_PREFIX}/src/thrift/configure --prefix=${thrift_PREFIX} --with-boost=${Boost_INCLUDE_DIRS} --enable-shared=no --with-libevent=no --with-c_glib=no --with-java=no --with-erlang=no --with-python=no --with-perl=no --with-php=no --with-php_extension=no --with-ruby=no --with-haskell=no --with-go=no --with-d=no --with-lua=no --with-qt4=no --disable-tests
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
@@ -79,29 +100,29 @@ include_directories(${thrift_PREFIX}/include)
 set(THRIFT_LIBRARIES ${thrift_PREFIX}/lib/libthrift.a)
 set(THRIFT_GENERATOR ${thrift_PREFIX}/bin/thrift)
 
-set(msgpack_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/msgpack)
-ExternalProject_Add(
-    msgpack
-    PREFIX ${msgpack_PREFIX}
-    URL "https://github.com/msgpack/msgpack-c/releases/download/cpp-1.1.0/msgpack-1.1.0.tar.gz"
-    URL_MD5 "ac41a64d6415fd184215825048bc4523"
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${msgpack_PREFIX}/src/msgpack/configure --prefix=${msgpack_PREFIX} --enable-shared=no --disable-debug
-    BUILD_COMMAND $(MAKE)
-    INSTALL_COMMAND $(MAKE) install
-    BUILD_IN_SOURCE 1
-    LOG_UPDATE ON
-    LOG_BUILD ON
-    LOG_INSTALL ON
-)
-include_directories(${msgpack_PREFIX}/include)
-set(MSGPACK_LIBRARIES ${msgpack_PREFIX}/lib/libmsgpack.a)
+#set(msgpack_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/msgpack)
+#ExternalProject_Add(
+#    msgpack
+#    PREFIX ${msgpack_PREFIX}
+#    URL "https://github.com/msgpack/msgpack-c/releases/download/cpp-1.1.0/msgpack-1.1.0.tar.gz"
+#    URL_MD5 "ac41a64d6415fd184215825048bc4523"
+#    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${msgpack_PREFIX}/src/msgpack/configure --prefix=${msgpack_PREFIX} --enable-shared=no --disable-debug
+#    BUILD_COMMAND $(MAKE)
+#    INSTALL_COMMAND $(MAKE) install
+#    BUILD_IN_SOURCE 1
+#    LOG_UPDATE ON
+#    LOG_BUILD ON
+#    LOG_INSTALL ON
+#)
+#include_directories(${msgpack_PREFIX}/include)
+#set(MSGPACK_LIBRARIES ${msgpack_PREFIX}/lib/libmsgpack.a)
 
 set(protobuf_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/protobuf)
 ExternalProject_Add(
     protobuf
     PREFIX ${protobuf_PREFIX}
-    URL "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.bz2"
-    URL_MD5 "78253c509a055dab316a21e754cb278a"
+    URL "https://github.com/google/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.bz2"
+    URL_MD5 "11aaac2d704eef8efd1867a807865d85"
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${protobuf_PREFIX}/src/protobuf/configure --prefix=${protobuf_PREFIX} --enable-shared=no
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
@@ -133,119 +154,120 @@ set(CAPNPROTO_LIBRARIES ${capnproto_PREFIX}/lib/libcapnp.a ${capnproto_PREFIX}/l
 set(CAPNPROTO_GENERATOR ${capnproto_PREFIX}/bin/capnp)
 set(CAPNPROTO_CPP_GENERATOR ${capnproto_PREFIX}/bin/capnpc-c++)
 
-set(cereal_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/cereal)
-ExternalProject_Add(
-    cereal
-    PREFIX ${cereal_PREFIX}
-    URL "https://github.com/USCiLab/cereal/archive/v1.1.2.tar.gz"
-    URL_MD5 "34d4ad174acbff005c36d4d10e48cbb9"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND mkdir -p ${cereal_PREFIX}/include/ && cp -r ${cereal_PREFIX}/src/cereal/include/cereal ${cereal_PREFIX}/include/
-)
-include_directories(${cereal_PREFIX}/include)
+#set(cereal_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/cereal)
+#ExternalProject_Add(
+#    cereal
+#    PREFIX ${cereal_PREFIX}
+#    URL "https://github.com/USCiLab/cereal/archive/v1.1.2.tar.gz"
+#    URL_MD5 "34d4ad174acbff005c36d4d10e48cbb9"
+#    CONFIGURE_COMMAND ""
+#    BUILD_COMMAND ""
+#    INSTALL_COMMAND mkdir -p ${cereal_PREFIX}/include/ && cp -r ${cereal_PREFIX}/src/cereal/include/cereal ${cereal_PREFIX}/include/
+#)
+#include_directories(${cereal_PREFIX}/include)
 
-set(avro_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/avro)
-ExternalProject_Add(
-    avro
-    DEPENDS boost
-    PREFIX ${avro_PREFIX}
-    URL "http://www.eu.apache.org/dist/avro/avro-1.7.7/avro-src-1.7.7.tar.gz"
-    URL_MD5 "352d8ee65f1ce1b43599be16eca7f264"
-    CONFIGURE_COMMAND cmake -DBOOST_INCLUDEDIR=${boost_PREFIX}/include -DBOOST_LIBRARYDIR=${boost_PREFIX}/lib -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${avro_PREFIX} -DBUILD_SHARED_LIBS=OFF ${avro_PREFIX}/src/avro/lang/c++/
-    # Due to some issues with using statically built boost libraries AND zlib in avro tests
-    # build only necessary parts and install them in a very hackish way.
-    BUILD_COMMAND $(MAKE) avrocpp_s avrogencpp
-    INSTALL_COMMAND mkdir -p ${avro_PREFIX}/include/avro ${avro_PREFIX}/lib ${avro_PREFIX}/bin && cp ${avro_PREFIX}/src/avro-build/avrogencpp ${avro_PREFIX}/bin && cp ${avro_PREFIX}/src/avro-build/libavrocpp_s.a ${avro_PREFIX}/lib && cd ${avro_PREFIX}/src/avro/lang/c++/api/ && cp -r . ${avro_PREFIX}/include/avro/
-    LOG_UPDATE ON
-    LOG_CONFIGURE ON
-    LOG_BUILD ON
-)
-include_directories(${avro_PREFIX}/include)
-set(AVRO_LIBRARIES ${avro_PREFIX}/lib/libavrocpp_s.a)
-set(AVRO_GENERATOR ${avro_PREFIX}/bin/avrogencpp)
+#set(avro_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/avro)
+#ExternalProject_Add(
+#    avro
+#    DEPENDS boost
+#    PREFIX ${avro_PREFIX}
+#    URL "http://www.eu.apache.org/dist/avro/avro-1.7.7/avro-src-1.7.7.tar.gz"
+#    URL_MD5 "352d8ee65f1ce1b43599be16eca7f264"
+#    CONFIGURE_COMMAND cmake -DBOOST_INCLUDEDIR=${boost_PREFIX}/include -DBOOST_LIBRARYDIR=${boost_PREFIX}/lib -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${avro_PREFIX} -DBUILD_SHARED_LIBS=OFF ${avro_PREFIX}/src/avro/lang/c++/
+#    # Due to some issues with using statically built boost libraries AND zlib in avro tests
+#    # build only necessary parts and install them in a very hackish way.
+#    BUILD_COMMAND $(MAKE) avrocpp_s avrogencpp
+#    INSTALL_COMMAND mkdir -p ${avro_PREFIX}/include/avro ${avro_PREFIX}/lib ${avro_PREFIX}/bin && cp ${avro_PREFIX}/src/avro-build/avrogencpp ${avro_PREFIX}/bin && cp ${avro_PREFIX}/src/avro-build/libavrocpp_s.a ${avro_PREFIX}/lib && cd ${avro_PREFIX}/src/avro/lang/c++/api/ && cp -r . ${avro_PREFIX}/include/avro/
+#    LOG_UPDATE ON
+#    LOG_CONFIGURE ON
+#    LOG_BUILD ON
+#)
+#include_directories(${avro_PREFIX}/include)
+#set(AVRO_LIBRARIES ${avro_PREFIX}/lib/libavrocpp_s.a)
+#set(AVRO_GENERATOR ${avro_PREFIX}/bin/avrogencpp)
 
 set(LINKLIBS    ${THRIFT_LIBRARIES}
-                ${MSGPACK_LIBRARIES}
+                #${MSGPACK_LIBRARIES}
                 ${PROTOBUF_LIBRARIES}
                 ${CAPNPROTO_LIBRARIES}
                 ${BOOST_LIBRARIES}
-                ${AVRO_LIBRARIES}
+                #${AVRO_LIBRARIES}
                 ${CMAKE_THREAD_LIBS_INIT}
                 ${ZLIB_LIBRARIES}
 )
 
 add_custom_command(
-    DEPENDS ${cpp_serializers_SOURCE_DIR}/test.thrift
+    DEPENDS ${cpp_serializers_SOURCE_DIR}/media.thrift
     COMMAND ${THRIFT_GENERATOR}
-    ARGS -r -gen cpp -o ${cpp_serializers_SOURCE_DIR}/thrift/ ${cpp_serializers_SOURCE_DIR}/test.thrift
-    OUTPUT  "${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_constants.cpp"
-            "${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_types.cpp"
+    ARGS -r -gen cpp -o ${cpp_serializers_SOURCE_DIR}/thrift/ ${cpp_serializers_SOURCE_DIR}/media.thrift
+    OUTPUT  "${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_constants.cpp"
+            "${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_types.cpp"
     COMMENT "Executing Thrift compiler"
 )
 set_source_files_properties(
-    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_constants.cpp
-    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_types.cpp
-    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_constants.h
-    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_types.h
+    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_constants.cpp
+    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_types.cpp
+    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_constants.h
+    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_types.h
     PROPERTIES GENERATED TRUE
 )
-set(THRIFT_SERIALIZATION_SOURCES    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_constants.cpp
-                                    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/test_types.cpp
+set(THRIFT_SERIALIZATION_SOURCES    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_constants.cpp
+                                    ${cpp_serializers_SOURCE_DIR}/thrift/gen-cpp/media_types.cpp
 )
 
 add_custom_command(
-    DEPENDS ${cpp_serializers_SOURCE_DIR}/test.proto
+    DEPENDS ${cpp_serializers_SOURCE_DIR}/media.proto
     COMMAND ${PROTOBUF_GENERATOR}
-    ARGS -I${cpp_serializers_SOURCE_DIR} --cpp_out=${cpp_serializers_SOURCE_DIR}/protobuf ${cpp_serializers_SOURCE_DIR}/test.proto
-    OUTPUT  "${cpp_serializers_SOURCE_DIR}/protobuf/test.pb.cc"
+    ARGS -I${cpp_serializers_SOURCE_DIR} --cpp_out=${cpp_serializers_SOURCE_DIR}/protobuf ${cpp_serializers_SOURCE_DIR}/media.proto
+    OUTPUT  "${cpp_serializers_SOURCE_DIR}/protobuf/media.pb.cc"
     COMMENT "Executing Protobuf compiler"
 )
 set_source_files_properties(
-    ${cpp_serializers_SOURCE_DIR}/protobuf/test.pb.cc
-    ${cpp_serializers_SOURCE_DIR}/protobuf/test.pb.h
+    ${cpp_serializers_SOURCE_DIR}/protobuf/media.pb.cc
+    ${cpp_serializers_SOURCE_DIR}/protobuf/media.pb.h
     PROPERTIES GENERATED TRUE
 )
-set(PROTOBUF_SERIALIZATION_SOURCES  ${cpp_serializers_SOURCE_DIR}/protobuf/test.pb.cc)
+set(PROTOBUF_SERIALIZATION_SOURCES  ${cpp_serializers_SOURCE_DIR}/protobuf/media.pb.cc)
 
 add_custom_command(
-    DEPENDS ${cpp_serializers_SOURCE_DIR}/test.capnp
+    DEPENDS ${cpp_serializers_SOURCE_DIR}/media.capnp
     COMMAND ${CAPNPROTO_GENERATOR}
-    ARGS compile -I${cpp_serializers_SOURCE_DIR} --src-prefix=${cpp_serializers_SOURCE_DIR} -o${CAPNPROTO_CPP_GENERATOR}:${cpp_serializers_SOURCE_DIR}/capnproto ${cpp_serializers_SOURCE_DIR}/test.capnp
-    OUTPUT  "${cpp_serializers_SOURCE_DIR}/capnproto/test.capnp.c++"
+    ARGS compile -I${cpp_serializers_SOURCE_DIR} --src-prefix=${cpp_serializers_SOURCE_DIR} -o${CAPNPROTO_CPP_GENERATOR}:${cpp_serializers_SOURCE_DIR}/capnproto ${cpp_serializers_SOURCE_DIR}/media.capnp
+    OUTPUT  "${cpp_serializers_SOURCE_DIR}/capnproto/media.capnp.c++"
     COMMENT "Executing Cap'n Proto compiler"
 )
 set_source_files_properties(
-    ${cpp_serializers_SOURCE_DIR}/capnproto/test.capnp.c++
-    ${cpp_serializers_SOURCE_DIR}/capnproto/test.capnp.h
+    ${cpp_serializers_SOURCE_DIR}/capnproto/media.capnp.c++
+    ${cpp_serializers_SOURCE_DIR}/capnproto/media.capnp.h
     PROPERTIES GENERATED TRUE
 )
-set(CAPNPROTO_SERIALIZATION_SOURCES  ${cpp_serializers_SOURCE_DIR}/capnproto/test.capnp.c++)
+set(CAPNPROTO_SERIALIZATION_SOURCES  ${cpp_serializers_SOURCE_DIR}/capnproto/media.capnp.c++)
 
-add_custom_command(
-    DEPENDS ${cpp_serializers_SOURCE_DIR}/test.json
-    COMMAND ${AVRO_GENERATOR}
-    ARGS --input ${cpp_serializers_SOURCE_DIR}/test.json --output ${cpp_serializers_SOURCE_DIR}/avro/record.hpp --namespace avro_test
-    OUTPUT  "${cpp_serializers_SOURCE_DIR}/avro/record.hpp"
-    COMMENT "Executing Avro compiler"
-)
-set_source_files_properties(
-    ${cpp_serializers_SOURCE_DIR}/avro/record.hpp
-    PROPERTIES GENERATED TRUE
-)
-set(AVRO_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/avro/record.hpp)
+#add_custom_command(
+#    DEPENDS ${cpp_serializers_SOURCE_DIR}/test.json
+#    COMMAND ${AVRO_GENERATOR}
+#    ARGS --input ${cpp_serializers_SOURCE_DIR}/test.json --output ${cpp_serializers_SOURCE_DIR}/avro/record.hpp --namespace avro_test
+#    OUTPUT  "${cpp_serializers_SOURCE_DIR}/avro/record.hpp"
+#    COMMENT "Executing Avro compiler"
+#)
+#set_source_files_properties(
+#    ${cpp_serializers_SOURCE_DIR}/avro/record.hpp
+#   PROPERTIES GENERATED TRUE
+#)
+#set(AVRO_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/avro/record.hpp)
 
-set(BOOST_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/boost/record.cpp)
-set(CEREAL_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/cereal/record.cpp)
+#set(BOOST_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/boost/record.cpp)
+#set(CEREAL_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/cereal/record.cpp)
 
-add_executable(benchmark ${cpp_serializers_SOURCE_DIR}/test.cpp
+add_executable(benchmark ${cpp_serializers_SOURCE_DIR}/media.cpp
                     ${THRIFT_SERIALIZATION_SOURCES}
                     ${PROTOBUF_SERIALIZATION_SOURCES}
                     ${CAPNPROTO_SERIALIZATION_SOURCES}
                     ${BOOST_SERIALIZATION_SOURCES}
-                    ${CEREAL_SERIALIZATION_SOURCES}
-                    ${AVRO_SERIALIZATION_SOURCES}
+                    #${CEREAL_SERIALIZATION_SOURCES}
+                    #${AVRO_SERIALIZATION_SOURCES}
 )
-add_dependencies(benchmark thrift msgpack protobuf capnproto boost cereal avro)
+#add_dependencies(benchmark thrift msgpack protobuf capnproto boost cereal avro)
+add_dependencies(benchmark thrift protobuf capnproto boost)
 target_link_libraries(benchmark ${LINKLIBS})
 set_target_properties(benchmark PROPERTIES COMPILE_FLAGS "-std=c++11")

@@ -1,0 +1,55 @@
+{
+    "images": [
+        {
+            "height": 24000,
+            "size": "LARGE",
+            "title": "Javaone Keynote",
+            "uri": "http://javaone.com/keynote_huge.jpg",
+            "width": 32000
+        },
+        {
+            "height": 768,
+            "size": "LARGE",
+            "uri": "http://javaone.com/keynote_large.jpg",
+            "width": 1024
+        },
+        {
+            "height": 240,
+            "size": "SMALL",
+            "uri": "http://javaone.com/keynote_small.jpg",
+            "width": 320
+        }
+    ],
+    "media": {
+        "copyright": "2009, Scooby Doo",
+        "duration": 18000001,
+        "format": "video/theora",
+        "height": 481,
+        "persons": [
+            "Bill Gates, Jr.",
+            "Steven Jobs"
+        ],
+        "player": "FLASH",
+        "pods": [
+            {
+                "message": "root3",
+                "pod": {
+                    "message": "root3-child1",
+                    "pod": {
+                        "message": "root3-child2",
+                        "pod": {
+                            "message": "root3-child3",
+                            "pod": {
+                                "message": "root3-child4",
+                                "pod": null
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "size": 58982401,
+        "uri": "http://javaone.com/keynote.ogg",
+        "width": 641
+    }
+}
