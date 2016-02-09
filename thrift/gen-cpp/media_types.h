@@ -37,6 +37,14 @@ struct Player {
 
 extern const std::map<int, const char*> _Player_VALUES_TO_NAMES;
 
+class Pod;
+
+class Image;
+
+class Media;
+
+class MediaContent;
+
 typedef struct _Pod__isset {
   _Pod__isset() : message(false), pod(false) {}
   bool message :1;
