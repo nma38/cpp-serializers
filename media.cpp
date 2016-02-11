@@ -23,26 +23,17 @@
 #include "protobuf/media.pb.h"
 #include "capnproto/media.capnp.h"*/
 #include "boost/media.hpp"
+#include "rapidjson/media.hpp"
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
 
-/*MediaContent
-get_test_data(std::string testfile)
-{
-    MediaContent data;
-
-    std::ifstream ifs(testfile.c_str());
-    std::stringstream buffer;
-    buffer << ifs.rdbuf();
-
-    from_string(data, buffer.str()); 
-
-    return data;
-}*/
-
-void
+/*void
 boost_serialization_test(size_t iterations)
 {
     using namespace boost_test;
     MediaContent r1, r2;
+
+    rapidjson_test::MediaContent data = get_test_data("media.2.json");
 
     std::string serialized;
     to_string(r1, serialized);
@@ -65,6 +56,75 @@ boost_serialization_test(size_t iterations)
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
 
     std::cout << "boost: time = " << duration << " milliseconds" << std::endl << std::endl;
+}*/
+
+void
+rapidjson_serialization_test(std::string testfile, size_t iterations)
+{
+    using namespace rapidjson_test;
+    MediaContent r1, r2;
+    //std::cout << "grabbing data file" << std::endl;
+    r1 = get_test_data(testfile);
+
+    //std::cout << "got data" << std::endl;
+    StringBuffer buffer;
+    PrettyWriter<StringBuffer> writer(buffer);
+    r1.Serialize(writer);
+    std::string serialized = buffer.GetString();
+    //std::cout << "Serialized output to local string" << std::endl;
+    //std::cout << serialized << std::endl;
+    //std::cout << "converting string to document" << std::endl;
+
+    Document d = get_document(serialized);
+    //std::cout << "deserializing" << std::endl;
+    r2.Deserialize(d);
+
+    if (r1 != r2) {
+        throw std::logic_error("rapidjson's case: deserialization failed");
+    }
+
+    //std::cout << "rapidjson: size = " << serialized.size() << " bytes" << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        serialized.clear();
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<StringBuffer> writer(buffer);
+        r1.Serialize(writer);
+        serialized = buffer.GetString();
+        Document d = get_document(serialized);
+        r2.Deserialize(d);
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+    std::cout << "rapidjson: roundtrip time = " << duration << " milliseconds" << std::endl;
+
+    auto start_deser = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        Document d = get_document(serialized);
+        r2.Deserialize(d);
+    }
+    auto finish_deser = std::chrono::high_resolution_clock::now();
+    auto duration_deser = std::chrono::duration_cast<std::chrono::milliseconds>(finish_deser - start_deser).count();
+
+    std::cout << "rapidjson: deserialize time = " << duration_deser << " milliseconds" << std::endl;
+
+    auto start_ser = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        serialized.clear();
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<StringBuffer> writer(buffer);
+        r1.Serialize(writer);
+        std::string new_serialized = buffer.GetString();
+    }
+    auto finish_ser = std::chrono::high_resolution_clock::now();
+    auto duration_ser = std::chrono::duration_cast<std::chrono::milliseconds>(finish_ser - start_ser).count();
+
+    std::cout << "rapidjson: serialize time = " << duration_ser << " milliseconds" << std::endl;
+    std::cout << "rapidjson: " << duration_ser << " " <<  duration_deser << " " << duration << std::endl << std::endl;
 }
 
 /*enum class ThriftSerializationProto {
@@ -163,7 +223,7 @@ thrift_serialization_test(size_t iterations, ThriftSerializationProto proto = Th
     std::cout << tag << " time = " << duration << " milliseconds" << std::endl << std::endl;
 }
 
-void
+/*void
 protobuf_serialization_test(size_t iterations)
 {
     using namespace protobuf_test;
@@ -396,9 +456,8 @@ int
 main(int argc, char **argv)
 {
     //GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-    if (argc < 2) {
-        std::cout << "usage: " << argv[0] << " N [thrift-binary thrift-compact protobuf boost capnproto msgpack cereal avro]";
+    if (argc < 3) {
+        std::cout << "usage: " << argv[0] << " N file [thrift-binary thrift-compact rapidjson protobuf boost capnproto]";
         std::cout << std::endl << std::endl;
         std::cout << "arguments: " << std::endl;
         std::cout << " N  -- number of iterations" << std::endl << std::endl;
@@ -415,34 +474,39 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    std::string testfile;
+    testfile = argv[2];
+
     std::set<std::string> names;
 
-    if (argc > 2) {
-        for (int i = 2; i < argc; i++) {
+    if (argc > 3) {
+        for (int i = 3; i < argc; i++) {
             names.insert(argv[i]);
         }
     }
-
-    std::string testfile = "media.2.json";
 
     std::cout << "grabbing test data " << testfile << std::endl << std::endl;
     std::cout << "performing " << iterations << " iterations" << std::endl << std::endl;
 
     try {
         // MediaContent testContent = get_test_data(testfile);
-        if (names.empty() || names.find("boost") != names.end()) {
-            boost_serialization_test(iterations);
+        if (names.empty() || names.find("rapidjson") != names.end()) {
+            rapidjson_serialization_test(testfile, iterations);
         }
 
+        /*if (names.empty() || names.find("boost") != names.end()) {
+            boost_serialization_test(iterations);
+        }*/
+
         /*if (names.empty() || names.find("thrift-binary") != names.end()) {
-            thrift_serialization_test(iterations, ThriftSerializationProto::Binary);
+            thrift_serialization_test(testfile, iterations, ThriftSerializationProto::Binary);
         }
 
         if (names.empty() || names.find("thrift-compact") != names.end()) {
-            thrift_serialization_test(iterations, ThriftSerializationProto::Compact);
-        }
+            thrift_serialization_test(testfile, iterations, ThriftSerializationProto::Compact);
+        }*/
 
-        if (names.empty() || names.find("protobuf") != names.end()) {
+        /*if (names.empty() || names.find("protobuf") != names.end()) {
             protobuf_serialization_test(iterations);
         }
 

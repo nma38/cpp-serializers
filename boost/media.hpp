@@ -23,20 +23,21 @@
 namespace boost_test {
 
 enum Size { SMALL=1, LARGE };
-enum Player { JAVA=1, FLASH }; 
+enum Player { JAVA=1, FLASH };
 
 class Pod {
 public:
     Pod* pod;
     std::string message;
-	
+
 	~Pod() {
 		if (pod != 0) {
 			pod->~Pod();
+            delete pod;
 		}
-		delete pod;		
+
 	}
-    
+
     bool operator==(const Pod &other) {
         bool message_equals = (message.compare(other.message) != 0);
         bool pod_equals = ((pod == 0 && other.pod == 0) || *pod == *other.pod);
@@ -50,7 +51,7 @@ public:
 
 private:
     friend class boost::serialization::access;
-    
+
     template<typename Archive>
     void serialize(Archive &ar, const unsigned int)
     {
@@ -68,7 +69,7 @@ public:
     int height;
     Size size;
     bool operator==(const Image &other) {
-        return (uri.compare(other.uri) != 0 && 
+        return (uri.compare(other.uri) != 0 &&
                 title.compare(other.title) != 0 &&
                 width == other.width &&
                 height == other.height &&
@@ -99,7 +100,7 @@ typedef std::vector<Pod>         Pods;
 typedef std::vector<Image>       Images;
 
 
-class Media 
+class Media
 {
 public:
 
@@ -119,12 +120,12 @@ public:
     bool operator==(const Media &other) {
 
         bool pods_equal = true;
-        for (int i = 0; i < pods.size(); i++) {
+        for (unsigned int i = 0; i < pods.size(); i++) {
             pods_equal = (pods_equal && pods[i] == other.pods[i]);
         }
 
-        return (uri.compare(other.uri) != 0 && 
-                title.compare(other.title) != 0 && 
+        return (uri.compare(other.uri) != 0 &&
+                title.compare(other.title) != 0 &&
                 width == other.width &&
                 height == other.height &&
                 format.compare(other.format) != 0 &&
@@ -167,13 +168,13 @@ class MediaContent {
 public:
     Images images;
     Media media;
-    
+
     bool operator==(const MediaContent &other) {
         bool images_equal = true;
-        for (int i = 0; i < images.size(); i++) {
+        for (unsigned int i = 0; i < images.size(); i++) {
             images_equal = (images_equal && images[i] == other.images[i]);
         }
-        return (images_equal && 
+        return (images_equal &&
                 media == other.media);
     }
 

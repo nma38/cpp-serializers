@@ -66,20 +66,15 @@ ExternalProject_Add(
     PREFIX ${rapidjson_PREFIX}
     URL "https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz"
     URL_MD5 "97cc60d01282a968474c97f60714828c"
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ${rapidjson_PREFIX}/src/rapidjson/configure --prefix=${rapidjson_PREFIX} --enable-shared=no
-    BUILD_COMMAND $(MAKE)
-    INSTALL_COMMAND $(MAKE) install
-    BUILD_IN_SOURCE 1
-    LOG_UPDATE ON
-    LOG_CONFIGURE ON
-    LOG_BUILD ON
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${rapidjson_PREFIX}/src/rapidjson/include ${rapidjson_PREFIX}/include 
+    LOG_DOWNLOAD ON
     LOG_INSTALL ON
 )
-set(radidjson_INCLUDE_DIRS ${rapidjson_PREFIX})
-set(RAPIDJSON_LIBRARIES ${rapidjson_PREFIX}/lib/)
+set(rapidjson_INCLUDE_DIRS ${rapidjson_PREFIX})
 include_directories(${rapidjson_INCLUDE_DIRS}/include)
-message(STATUS "Using Boost from ${rapidjson_INCLUDE_DIRS}/include")
-
+message(STATUS "Using rapid json from ${rapidjson_INCLUDE_DIRS}/include")
 
 set(thrift_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/thrift)
 ExternalProject_Add(
@@ -188,6 +183,7 @@ set(CAPNPROTO_CPP_GENERATOR ${capnproto_PREFIX}/bin/capnpc-c++)
 
 set(LINKLIBS    ${THRIFT_LIBRARIES}
                 #${MSGPACK_LIBRARIES}
+                ${RAPIDJSON_LIBRARIES}
                 ${PROTOBUF_LIBRARIES}
                 ${CAPNPROTO_LIBRARIES}
                 ${BOOST_LIBRARIES}
@@ -256,18 +252,20 @@ set(CAPNPROTO_SERIALIZATION_SOURCES  ${cpp_serializers_SOURCE_DIR}/capnproto/med
 #)
 #set(AVRO_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/avro/record.hpp)
 
-#set(BOOST_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/boost/record.cpp)
 #set(CEREAL_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/cereal/record.cpp)
+set(BOOST_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/boost/media.cpp)
+set(RAPIDJSON_SERIALIZATION_SOURCES ${cpp_serializers_SOURCE_DIR}/rapidjson/media.cpp)
 
 add_executable(benchmark ${cpp_serializers_SOURCE_DIR}/media.cpp
                     ${THRIFT_SERIALIZATION_SOURCES}
                     ${PROTOBUF_SERIALIZATION_SOURCES}
                     ${CAPNPROTO_SERIALIZATION_SOURCES}
                     ${BOOST_SERIALIZATION_SOURCES}
+                    ${RAPIDJSON_SERIALIZATION_SOURCES}
                     #${CEREAL_SERIALIZATION_SOURCES}
                     #${AVRO_SERIALIZATION_SOURCES}
 )
 #add_dependencies(benchmark thrift msgpack protobuf capnproto boost cereal avro)
-add_dependencies(benchmark thrift protobuf capnproto boost)
+add_dependencies(benchmark rapidjson thrift protobuf capnproto boost)
 target_link_libraries(benchmark ${LINKLIBS})
 set_target_properties(benchmark PROPERTIES COMPILE_FLAGS "-std=c++11")

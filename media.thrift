@@ -12,7 +12,7 @@ enum Player {
 
 struct Pod {
   1: string message,
-  2: optional Pod pod,
+  2: required list<Pod> pod,
 }
 
 /**

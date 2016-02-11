@@ -42,9 +42,8 @@ void Pod::__set_message(const std::string& val) {
   this->message = val;
 }
 
-void Pod::__set_pod(const Pod& val) {
+void Pod::__set_pod(const std::vector<Pod> & val) {
   this->pod = val;
-__isset.pod = true;
 }
 
 uint32_t Pod::read(::apache::thrift::protocol::TProtocol* iprot) {
@@ -59,6 +58,7 @@ uint32_t Pod::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   using ::apache::thrift::protocol::TProtocolException;
 
+  bool isset_pod = false;
 
   while (true)
   {
@@ -77,9 +77,21 @@ uint32_t Pod::read(::apache::thrift::protocol::TProtocol* iprot) {
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->pod.read(iprot);
-          this->__isset.pod = true;
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->pod.clear();
+            uint32_t _size0;
+            ::apache::thrift::protocol::TType _etype3;
+            xfer += iprot->readListBegin(_etype3, _size0);
+            this->pod.resize(_size0);
+            uint32_t _i4;
+            for (_i4 = 0; _i4 < _size0; ++_i4)
+            {
+              xfer += this->pod[_i4].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          isset_pod = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -93,6 +105,8 @@ uint32_t Pod::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   xfer += iprot->readStructEnd();
 
+  if (!isset_pod)
+    throw TProtocolException(TProtocolException::INVALID_DATA);
   return xfer;
 }
 
@@ -105,11 +119,18 @@ uint32_t Pod::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeString(this->message);
   xfer += oprot->writeFieldEnd();
 
-  if (this->__isset.pod) {
-    xfer += oprot->writeFieldBegin("pod", ::apache::thrift::protocol::T_STRUCT, 2);
-    xfer += this->pod.write(oprot);
-    xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("pod", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->pod.size()));
+    std::vector<Pod> ::const_iterator _iter5;
+    for (_iter5 = this->pod.begin(); _iter5 != this->pod.end(); ++_iter5)
+    {
+      xfer += (*_iter5).write(oprot);
+    }
+    xfer += oprot->writeListEnd();
   }
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -122,22 +143,22 @@ void swap(Pod &a, Pod &b) {
   swap(a.__isset, b.__isset);
 }
 
-Pod::Pod(const Pod& other0) {
-  message = other0.message;
-  pod = other0.pod;
-  __isset = other0.__isset;
+Pod::Pod(const Pod& other6) {
+  message = other6.message;
+  pod = other6.pod;
+  __isset = other6.__isset;
 }
-Pod& Pod::operator=(const Pod& other1) {
-  message = other1.message;
-  pod = other1.pod;
-  __isset = other1.__isset;
+Pod& Pod::operator=(const Pod& other7) {
+  message = other7.message;
+  pod = other7.pod;
+  __isset = other7.__isset;
   return *this;
 }
 void Pod::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
   out << "Pod(";
   out << "message=" << to_string(message);
-  out << ", " << "pod="; (__isset.pod ? (out << to_string(pod)) : (out << "<null>"));
+  out << ", " << "pod=" << to_string(pod);
   out << ")";
 }
 
@@ -225,9 +246,9 @@ uint32_t Image::read(::apache::thrift::protocol::TProtocol* iprot) {
         break;
       case 5:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast2;
-          xfer += iprot->readI32(ecast2);
-          this->size = (Size::type)ecast2;
+          int32_t ecast8;
+          xfer += iprot->readI32(ecast8);
+          this->size = (Size::type)ecast8;
           isset_size = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -292,21 +313,21 @@ void swap(Image &a, Image &b) {
   swap(a.__isset, b.__isset);
 }
 
-Image::Image(const Image& other3) {
-  uri = other3.uri;
-  title = other3.title;
-  width = other3.width;
-  height = other3.height;
-  size = other3.size;
-  __isset = other3.__isset;
+Image::Image(const Image& other9) {
+  uri = other9.uri;
+  title = other9.title;
+  width = other9.width;
+  height = other9.height;
+  size = other9.size;
+  __isset = other9.__isset;
 }
-Image& Image::operator=(const Image& other4) {
-  uri = other4.uri;
-  title = other4.title;
-  width = other4.width;
-  height = other4.height;
-  size = other4.size;
-  __isset = other4.__isset;
+Image& Image::operator=(const Image& other10) {
+  uri = other10.uri;
+  title = other10.title;
+  width = other10.width;
+  height = other10.height;
+  size = other10.size;
+  __isset = other10.__isset;
   return *this;
 }
 void Image::printTo(std::ostream& out) const {
@@ -473,14 +494,14 @@ uint32_t Media::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->person.clear();
-            uint32_t _size5;
-            ::apache::thrift::protocol::TType _etype8;
-            xfer += iprot->readListBegin(_etype8, _size5);
-            this->person.resize(_size5);
-            uint32_t _i9;
-            for (_i9 = 0; _i9 < _size5; ++_i9)
+            uint32_t _size11;
+            ::apache::thrift::protocol::TType _etype14;
+            xfer += iprot->readListBegin(_etype14, _size11);
+            this->person.resize(_size11);
+            uint32_t _i15;
+            for (_i15 = 0; _i15 < _size11; ++_i15)
             {
-              xfer += iprot->readString(this->person[_i9]);
+              xfer += iprot->readString(this->person[_i15]);
             }
             xfer += iprot->readListEnd();
           }
@@ -491,9 +512,9 @@ uint32_t Media::read(::apache::thrift::protocol::TProtocol* iprot) {
         break;
       case 10:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast10;
-          xfer += iprot->readI32(ecast10);
-          this->player = (Player::type)ecast10;
+          int32_t ecast16;
+          xfer += iprot->readI32(ecast16);
+          this->player = (Player::type)ecast16;
           isset_player = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -511,14 +532,14 @@ uint32_t Media::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->pods.clear();
-            uint32_t _size11;
-            ::apache::thrift::protocol::TType _etype14;
-            xfer += iprot->readListBegin(_etype14, _size11);
-            this->pods.resize(_size11);
-            uint32_t _i15;
-            for (_i15 = 0; _i15 < _size11; ++_i15)
+            uint32_t _size17;
+            ::apache::thrift::protocol::TType _etype20;
+            xfer += iprot->readListBegin(_etype20, _size17);
+            this->pods.resize(_size17);
+            uint32_t _i21;
+            for (_i21 = 0; _i21 < _size17; ++_i21)
             {
-              xfer += this->pods[_i15].read(iprot);
+              xfer += this->pods[_i21].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -597,10 +618,10 @@ uint32_t Media::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("person", ::apache::thrift::protocol::T_LIST, 9);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->person.size()));
-    std::vector<std::string> ::const_iterator _iter16;
-    for (_iter16 = this->person.begin(); _iter16 != this->person.end(); ++_iter16)
+    std::vector<std::string> ::const_iterator _iter22;
+    for (_iter22 = this->person.begin(); _iter22 != this->person.end(); ++_iter22)
     {
-      xfer += oprot->writeString((*_iter16));
+      xfer += oprot->writeString((*_iter22));
     }
     xfer += oprot->writeListEnd();
   }
@@ -618,10 +639,10 @@ uint32_t Media::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("pods", ::apache::thrift::protocol::T_LIST, 12);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->pods.size()));
-    std::vector<Pod> ::const_iterator _iter17;
-    for (_iter17 = this->pods.begin(); _iter17 != this->pods.end(); ++_iter17)
+    std::vector<Pod> ::const_iterator _iter23;
+    for (_iter23 = this->pods.begin(); _iter23 != this->pods.end(); ++_iter23)
     {
-      xfer += (*_iter17).write(oprot);
+      xfer += (*_iter23).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -649,35 +670,35 @@ void swap(Media &a, Media &b) {
   swap(a.__isset, b.__isset);
 }
 
-Media::Media(const Media& other18) {
-  uri = other18.uri;
-  title = other18.title;
-  width = other18.width;
-  height = other18.height;
-  format = other18.format;
-  duration = other18.duration;
-  size = other18.size;
-  bitrate = other18.bitrate;
-  person = other18.person;
-  player = other18.player;
-  copyright = other18.copyright;
-  pods = other18.pods;
-  __isset = other18.__isset;
+Media::Media(const Media& other24) {
+  uri = other24.uri;
+  title = other24.title;
+  width = other24.width;
+  height = other24.height;
+  format = other24.format;
+  duration = other24.duration;
+  size = other24.size;
+  bitrate = other24.bitrate;
+  person = other24.person;
+  player = other24.player;
+  copyright = other24.copyright;
+  pods = other24.pods;
+  __isset = other24.__isset;
 }
-Media& Media::operator=(const Media& other19) {
-  uri = other19.uri;
-  title = other19.title;
-  width = other19.width;
-  height = other19.height;
-  format = other19.format;
-  duration = other19.duration;
-  size = other19.size;
-  bitrate = other19.bitrate;
-  person = other19.person;
-  player = other19.player;
-  copyright = other19.copyright;
-  pods = other19.pods;
-  __isset = other19.__isset;
+Media& Media::operator=(const Media& other25) {
+  uri = other25.uri;
+  title = other25.title;
+  width = other25.width;
+  height = other25.height;
+  format = other25.format;
+  duration = other25.duration;
+  size = other25.size;
+  bitrate = other25.bitrate;
+  person = other25.person;
+  player = other25.player;
+  copyright = other25.copyright;
+  pods = other25.pods;
+  __isset = other25.__isset;
   return *this;
 }
 void Media::printTo(std::ostream& out) const {
@@ -738,14 +759,14 @@ uint32_t MediaContent::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->image.clear();
-            uint32_t _size20;
-            ::apache::thrift::protocol::TType _etype23;
-            xfer += iprot->readListBegin(_etype23, _size20);
-            this->image.resize(_size20);
-            uint32_t _i24;
-            for (_i24 = 0; _i24 < _size20; ++_i24)
+            uint32_t _size26;
+            ::apache::thrift::protocol::TType _etype29;
+            xfer += iprot->readListBegin(_etype29, _size26);
+            this->image.resize(_size26);
+            uint32_t _i30;
+            for (_i30 = 0; _i30 < _size26; ++_i30)
             {
-              xfer += this->image[_i24].read(iprot);
+              xfer += this->image[_i30].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -786,10 +807,10 @@ uint32_t MediaContent::write(::apache::thrift::protocol::TProtocol* oprot) const
   xfer += oprot->writeFieldBegin("image", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->image.size()));
-    std::vector<Image> ::const_iterator _iter25;
-    for (_iter25 = this->image.begin(); _iter25 != this->image.end(); ++_iter25)
+    std::vector<Image> ::const_iterator _iter31;
+    for (_iter31 = this->image.begin(); _iter31 != this->image.end(); ++_iter31)
     {
-      xfer += (*_iter25).write(oprot);
+      xfer += (*_iter31).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -810,13 +831,13 @@ void swap(MediaContent &a, MediaContent &b) {
   swap(a.media, b.media);
 }
 
-MediaContent::MediaContent(const MediaContent& other26) {
-  image = other26.image;
-  media = other26.media;
+MediaContent::MediaContent(const MediaContent& other32) {
+  image = other32.image;
+  media = other32.media;
 }
-MediaContent& MediaContent::operator=(const MediaContent& other27) {
-  image = other27.image;
-  media = other27.media;
+MediaContent& MediaContent::operator=(const MediaContent& other33) {
+  image = other33.image;
+  media = other33.media;
   return *this;
 }
 void MediaContent::printTo(std::ostream& out) const {

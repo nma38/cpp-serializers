@@ -46,9 +46,8 @@ class Media;
 class MediaContent;
 
 typedef struct _Pod__isset {
-  _Pod__isset() : message(false), pod(false) {}
+  _Pod__isset() : message(false) {}
   bool message :1;
-  bool pod :1;
 } _Pod__isset;
 
 class Pod {
@@ -61,21 +60,19 @@ class Pod {
 
   virtual ~Pod() throw();
   std::string message;
-  Pod pod;
+  std::vector<Pod>  pod;
 
   _Pod__isset __isset;
 
   void __set_message(const std::string& val);
 
-  void __set_pod(const Pod& val);
+  void __set_pod(const std::vector<Pod> & val);
 
   bool operator == (const Pod & rhs) const
   {
     if (!(message == rhs.message))
       return false;
-    if (__isset.pod != rhs.__isset.pod)
-      return false;
-    else if (__isset.pod && !(pod == rhs.pod))
+    if (!(pod == rhs.pod))
       return false;
     return true;
   }
