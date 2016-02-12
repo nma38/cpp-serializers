@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 
+#include "thrift/gen-cpp/media_types.h"
+#include "thrift/gen-cpp/media_constants.h"
+
 namespace rapidjson_test {
 using namespace rapidjson;
 
@@ -423,6 +426,7 @@ public:
 };
 
 MediaContent get_test_data(std::string testfile);
+thrift_test::MediaContent get_thrift_test_data(std::string testfile);
 
 } // namespace
 #endif

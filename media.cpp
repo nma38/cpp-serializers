@@ -6,6 +6,7 @@
 #include <chrono>
 #include <sstream>
 #include <fstream>
+#include <cstdio>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -14,14 +15,14 @@
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/protocol/TCompactProtocol.h>
 
-/*#include "thrift/gen-cpp/media_types.h"
+#include "thrift/gen-cpp/media_types.h"
 #include "thrift/gen-cpp/media_constants.h"
-
-#include <capnp/message.h>
-#include <capnp/serialize.h>
-
 #include "protobuf/media.pb.h"
-#include "capnproto/media.capnp.h"*/
+
+/*#include <capnp/message.h>
+#include <capnp/serialize.h>*/
+
+/*#include "capnproto/media.capnp.h"*/
 #include "boost/media.hpp"
 #include "rapidjson/media.hpp"
 #include "rapidjson/document.h"
@@ -83,7 +84,7 @@ rapidjson_serialization_test(std::string testfile, size_t iterations)
         throw std::logic_error("rapidjson's case: deserialization failed");
     }
 
-    //std::cout << "rapidjson: size = " << serialized.size() << " bytes" << std::endl;
+    std::cout << "rapidjson: size = " << serialized.size() << " bytes" << std::endl;
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
@@ -127,13 +128,13 @@ rapidjson_serialization_test(std::string testfile, size_t iterations)
     std::cout << "rapidjson: " << duration_ser << " " <<  duration_deser << " " << duration << std::endl << std::endl;
 }
 
-/*enum class ThriftSerializationProto {
+enum class ThriftSerializationProto {
     Binary,
     Compact
 };
 
 void
-thrift_serialization_test(size_t iterations, ThriftSerializationProto proto = ThriftSerializationProto::Binary)
+thrift_serialization_test(std::string testfile, size_t iterations, ThriftSerializationProto proto = ThriftSerializationProto::Binary)
 {
     using apache::thrift::transport::TMemoryBuffer;
     using apache::thrift::protocol::TBinaryProtocol;
@@ -152,16 +153,7 @@ thrift_serialization_test(size_t iterations, ThriftSerializationProto proto = Th
     TCompactProtocolT<TMemoryBuffer> compact_protocol1(buffer1);
     TCompactProtocolT<TMemoryBuffer> compact_protocol2(buffer2);
 
-    Record r1;
-
-    for (size_t i = 0; i < kIntegers.size(); i++) {
-        r1.ids.push_back(kIntegers[i]);
-    }
-
-    for (size_t i = 0; i < kStringsCount; i++) {
-        r1.strings.push_back(kStringValue);
-    }
-
+    MediaContent r1 = rapidjson_test::get_thrift_test_data(testfile);
     std::string serialized;
 
     if (proto == ThriftSerializationProto::Binary) {
@@ -172,8 +164,10 @@ thrift_serialization_test(size_t iterations, ThriftSerializationProto proto = Th
 
     serialized = buffer1->getBufferAsString();
 
+    //std::cout << serialized << std::endl;
+
     // check if we can deserialize back
-    Record r2;
+    MediaContent r2;
 
     buffer2->resetBuffer((uint8_t*)serialized.data(), serialized.length());
 
@@ -220,7 +214,39 @@ thrift_serialization_test(size_t iterations, ThriftSerializationProto proto = Th
     auto finish = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
 
-    std::cout << tag << " time = " << duration << " milliseconds" << std::endl << std::endl;
+    auto start_deser = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        buffer2->resetBuffer((uint8_t*)serialized.data(), serialized.length());
+
+        if (proto == ThriftSerializationProto::Binary) {
+            r2.read(&binary_protocol2);
+        } else if (proto == ThriftSerializationProto::Compact) {
+            r2.read(&compact_protocol2);
+        }
+    }
+    auto finish_deser = std::chrono::high_resolution_clock::now();
+    auto duration_deser = std::chrono::duration_cast<std::chrono::milliseconds>(finish_deser - start_deser).count();
+
+    auto start_ser = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        buffer1->resetBuffer();
+
+        if (proto == ThriftSerializationProto::Binary) {
+            r1.write(&binary_protocol1);
+        } else if (proto == ThriftSerializationProto::Compact) {
+            r1.write(&compact_protocol1);
+        }
+
+        serialized = buffer1->getBufferAsString();
+    }
+    auto finish_ser = std::chrono::high_resolution_clock::now();
+    auto duration_ser = std::chrono::duration_cast<std::chrono::milliseconds>(finish_ser - start_ser).count();
+
+    std::cout << tag << " roundtrip time = " << duration << " milliseconds" << std::endl;
+    std::cout << tag << " deserialize time = " << duration_deser << " milliseconds" << std::endl;
+    std::cout << tag << " serialize time = " << duration_ser << " milliseconds" << std::endl;
+    std::cout << tag << " " << duration_ser << " " <<  duration_deser << " " << duration << std::endl << std::endl;
+
 }
 
 /*void
@@ -498,13 +524,13 @@ main(int argc, char **argv)
             boost_serialization_test(iterations);
         }*/
 
-        /*if (names.empty() || names.find("thrift-binary") != names.end()) {
+        if (names.empty() || names.find("thrift-binary") != names.end()) {
             thrift_serialization_test(testfile, iterations, ThriftSerializationProto::Binary);
         }
 
         if (names.empty() || names.find("thrift-compact") != names.end()) {
             thrift_serialization_test(testfile, iterations, ThriftSerializationProto::Compact);
-        }*/
+        }
 
         /*if (names.empty() || names.find("protobuf") != names.end()) {
             protobuf_serialization_test(iterations);
